@@ -8,13 +8,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-public class Game extends ApplicationAdapter {
+public class Game extends com.badlogic.gdx.Game {
     SpriteBatch batch;
     Texture img;
     Character characterLeft;
@@ -32,7 +33,7 @@ public class Game extends ApplicationAdapter {
         music = Gdx.audio.newMusic(Gdx.files.internal("fon.mp3"));
         music.setLooping(true);
         music.setVolume(0.5f);
-       music.play();
+        music.play();
        //конец
         characterLeft = new Character("FireKnight", 50, 30);
         characterLeft.setControlButtons(
@@ -67,43 +68,65 @@ public class Game extends ApplicationAdapter {
     @Override
     public void render() {
         ScreenUtils.clear(1, 1, 1, 1);
-        stateTime += Gdx.graphics.getDeltaTime();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        int marginTop = Gdx.graphics.getHeight() - 10;
-        Controller.drawHP(5, marginTop, characterLeft.health);
-        int offsetX = Gdx.graphics.getWidth() - (int) (100 * 2.5) - 5;
-        Controller.drawHP(offsetX, marginTop, characterRight.health);
-        //------------------------------ ИГРОК СЛЕВА ---------------------------------
-        Controller.setControl(batch, characterLeft, stateTime);
-        if (characterLeft.personRectangle.x < 0) {
-            characterLeft.personRectangle.x = 0;
-        }
-        if (characterLeft.personRectangle.x > characterRight.personRectangle.x - 40) {
-            characterLeft.personRectangle.x -= 10;
-        }
+        if (characterLeft.health <=0){
+            BitmapFont font = new BitmapFont();
+            font.setColor(Color.RED);
+            String str = characterRight.name + " победил";
+            batch.begin();
 
-        //-------------------- ----- ИГРОК СПРАВА ---------------------------------
-        Controller.setControl(batch, characterRight, stateTime);
-
-        if (characterRight.personRectangle.x > Gdx.graphics.getWidth() - 150) {
-            characterRight.personRectangle.x -= 200 * Gdx.graphics.getDeltaTime();
-        }
-        if (characterRight.personRectangle.x < characterLeft.personRectangle.x + 40) {
-            characterRight.personRectangle.x += 10;
-        }
-
-        float distance = characterRight.personRectangle.x - characterLeft.personRectangle.x;
-        if (Gdx.input.isKeyPressed(characterLeft.buttonAttack)){
-
-        }
-        if (Gdx.input.isKeyPressed(characterRight.buttonAttack) && distance < 80){
-            time += Gdx.graphics.getDeltaTime();
-            if (time > 0.5f){
-                time = 0;
-                characterLeft.health -= 10;
-            }
+            batch.end();  font.draw(batch, str, 180, 180);
+        } else if (characterRight.health <=0){
+            BitmapFont font = new BitmapFont();
+            font.setColor(Color.RED);
+            batch.begin();
+            font.draw(batch, (characterLeft.name + " победил"), 180, 180);
+            batch.end();
         } else {
-            time = 0;
+            stateTime += Gdx.graphics.getDeltaTime();
+
+            int marginTop = Gdx.graphics.getHeight() - 10;
+            Controller.drawHP(5, marginTop, characterLeft.health);
+            int offsetX = Gdx.graphics.getWidth() - (int)(characterRight.health * 2.5) - 5;
+            Controller.drawHP(offsetX, marginTop, characterRight.health);
+            //------------------------------ ИГРОК СЛЕВА ---------------------------------
+            Controller.setControl(batch, characterLeft, stateTime);
+            if (characterLeft.personRectangle.x < 0) {
+                characterLeft.personRectangle.x = 0;
+            }
+            if (characterLeft.personRectangle.x > characterRight.personRectangle.x - 40) {
+                characterLeft.personRectangle.x -= 10;
+            }
+
+            //-------------------- ----- ИГРОК СПРАВА ---------------------------------
+            Controller.setControl(batch, characterRight, stateTime);
+
+            if (characterRight.personRectangle.x > Gdx.graphics.getWidth() - 150) {
+                characterRight.personRectangle.x -= 200 * Gdx.graphics.getDeltaTime();
+            }
+            if (characterRight.personRectangle.x < characterLeft.personRectangle.x + 40) {
+                characterRight.personRectangle.x += 10;
+            }
+
+            float distance = characterRight.personRectangle.x - characterLeft.personRectangle.x;
+            if (Gdx.input.isKeyPressed(characterLeft.buttonAttack) && distance < 110){
+                time += Gdx.graphics.getDeltaTime();
+                if (time > 0.5f){
+                    time = 0;
+                    characterRight.health -= characterLeft.damage;
+                }
+            }
+            if (Gdx.input.isKeyPressed(characterRight.buttonAttack) && distance < 80){
+                time += Gdx.graphics.getDeltaTime();
+                if (time > 0.5f){
+                    time = 0;
+                    characterLeft.health -= characterRight.damage;
+                }
+            }
+            if (!Gdx.input.isKeyPressed(characterLeft.buttonAttack) && !Gdx.input.isKeyPressed(characterRight.buttonAttack)){
+                time = 0;
+            }
         }
     }
 

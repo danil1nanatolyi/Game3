@@ -6,9 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 public class Character {
     String name = "";
     int health = 100;
-    int strength = 20;
     int damage = 20;
-    int num = 0;
 
     Rectangle personRectangle;
 

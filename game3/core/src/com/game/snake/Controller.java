@@ -11,9 +11,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class Controller {
-
     public static void draw(SpriteBatch batch, Animation animation, Character character, float time){
-        TextureRegion currentFrame = (TextureRegion) animation.getKeyFrame(time, true); // #16
+        TextureRegion currentFrame = (TextureRegion) animation.getKeyFrame(time, true);
         batch.begin();
         batch.draw(
                 currentFrame,
